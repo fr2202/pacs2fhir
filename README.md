@@ -8,7 +8,7 @@
 
 ## Sobre o projeto
 
-Este projeto nasceu quando o **Centro Hospitalar Universitário de Lisboa Norte (CHULN)** disponibilizou 10.001 relatórios radiológicos anonimizados no âmbito da agenda do projeto **BLOCKCHAIN.PT** (WP2 – Saúde e Bem-estar). A questão central era: como transformar dados clínicos não estruturados — exportados em JSON aninhado com narrativas em RTF — no padrão universal **HL7 FHIR R4**?
+Este projeto nasceu quando a empresa **BioGHP** — custodiante dos dados clínicos no âmbito do projeto **BLOCKCHAIN.PT** (WP9 – ESTG-Leiria) — disponibilizou 10.001 relatórios radiológicos anonimizados provenientes do CHULN (Centro Hospitalar Universitário de Lisboa Norte). A questão central era: como transformar dados clínicos não estruturados — exportados em JSON aninhado com narrativas em RTF — no padrão universal **HL7 FHIR R4**?
 
 O resultado é uma plataforma com dois módulos integrados:
 
@@ -101,7 +101,7 @@ PACS JSON (RTF aninhado)
 
 ## Dataset
 
-- **Fonte:** Centro Hospitalar Universitário de Lisboa Norte (CHULN) — dados anonimizados
+- **Fonte:** BioGHP (custodiante) via BLOCKCHAIN.PT — dados provenientes do CHULN, anonimizados
 - **Tipo:** Relatórios de Tomografia Computadorizada (TC)
 - **Volume:** 10.001 relatórios PACS (9.921 para sumarização)
 - **Split sumarização:** Train 7.937 · Val 992 · Test 992 (616 com referências manuais)
