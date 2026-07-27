@@ -21,11 +21,13 @@ O resultado é uma plataforma com dois módulos integrados:
 
 | Projeto | Descrição | Repo |
 |---------|-----------|------|
+| **Página do projeto** | GitHub Pages — documentação, resultados, demos | [`fr2202/pacs2fhir`](https://github.com/fr2202/pacs2fhir) |
 | **Pipeline FHIR** | Transformação PACS→FHIR R4 multi-agente em Python | [`fr2202/fhir-transformer`](https://github.com/fr2202/fhir-transformer) |
-| **Sumarização** | Módulo de sumarização clínica com LLMs (PTT5, mT5, Gemma) | [`fr2202/clinical-summarization`](https://github.com/fr2202/clinical-summarization) |
-| **Projeto EI 2024/2025** | Plataforma web de conversão PACS→FHIR (Flask + MongoDB) | [`rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico`](https://github.com/rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico) |
-| **Projeto EI 2025/2026 — 51** | Servidor HAPI-FHIR R4 configurado e populado | *(em publicação)* |
-| **Projeto EI 2025/2026 — 52** | Dashboard médico com sumarização clínica integrada | *(em publicação)* |
+| **API FHIR** | API Flask original de conversão PACS→FHIR (v1) | [`fr2202/APIFHIR`](https://github.com/fr2202/APIFHIR) |
+| **Sumarização** | Sumarização clínica com LLMs — PTT5, mT5, Gemma, avaliação multilíngue | [`fr2202/clinical-summarization`](https://github.com/fr2202/clinical-summarization) |
+| **Projeto Sumarização (EI)** | Projeto de licenciatura — sumarização clínica integrada | [`fr2202/proyecto51`](https://github.com/fr2202/proyecto51) |
+| **Projeto EI 2024/2025** | Dashboard web com integração FHIR e resumo clínico (Flask + MongoDB) | [`rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico`](https://github.com/rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico) |
+| **Projeto EI 2025/2026 — 52** | Dashboard médico com sumarização clínica integrada + VM Ubuntu | *(em publicação)* |
 
 ---
 
