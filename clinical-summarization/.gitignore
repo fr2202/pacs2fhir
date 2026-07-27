@@ -1,0 +1,73 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# ── Dados clínicos — NUNCA commitar ─────────────────────
+# Relatórios do CHULN são confidenciais
+data/raw/*.txt
+data/raw/*.json
+data/raw/*.nbib
+data/raw/*.bib
+data/processed/*.pt
+data/processed/*.pkl
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ── Modelos treinados (demasiado grandes para git) ───────
+*.pt
+*.bin
+*.safetensors
+*.ckpt
+*.h5
+models/checkpoints/
+models/weights/
+
+# ── Cache Hugging Face ───────────────────────────────────
+.cache/
+~/.cache/huggingface/
+
+# ── Resultados de eval (manter só os finais no examples/)
+results/raw/
+results/*.tmp
+!results/.gitkeep
+
+# ── Notebooks (outputs podem ter dados) ─────────────────
+# Limpar outputs antes de commitar: jupyter nbconvert --clear-output
+*.ipynb
+
+# ── Environment / secrets ───────────────────────────────
+.env
+*.env
+secrets.py
+
+# ── OS ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ── Pytest / coverage ───────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Wandb / MLflow logs ──────────────────────────────────
+wandb/
+mlruns/

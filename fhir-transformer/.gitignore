@@ -1,0 +1,57 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# ── Dados clínicos — NUNCA commitar ─────────────────────
+# Os dados do CHULN são confidenciais e não devem sair deste computador
+JSON/
+*.txt.bak
+data/raw/
+data/clinical/
+
+# ── Output gerado (grande, não vai para git) ────────────
+output/fhir_bundles/*.fhir.json
+output/fhir_bundles/*.json
+!output/fhir_bundles/.gitkeep
+
+# ── Logs (gerados em runtime) ───────────────────────────
+logs/*.log
+logs/*.json
+!logs/.gitkeep
+
+# ── Environment / secrets ───────────────────────────────
+.env
+.env.local
+*.env
+secrets.py
+config/secrets.py
+
+# ── OS ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ── Pytest / coverage ───────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/

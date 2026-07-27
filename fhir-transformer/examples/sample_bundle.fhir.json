@@ -1,0 +1,86 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "id": "example-bundle-001",
+  "_comment": "Bundle FHIR R4 exemplo (dados anonimizados / sintéticos para demonstração)",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "78673b94-f088-4d4a-96b1-80c383887445",
+        "identifier": [
+          {
+            "system": "urn:chuln:patient-id",
+            "value": "PATIENT-DEMO-001"
+          }
+        ],
+        "birthDate": "1958-01-01"
+      },
+      "request": { "method": "PUT", "url": "Patient/78673b94-f088-4d4a-96b1-80c383887445" }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-demo-001",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": { "reference": "Patient/78673b94-f088-4d4a-96b1-80c383887445" },
+        "period": { "start": "2021-06-15T09:30:00+01:00" }
+      },
+      "request": { "method": "PUT", "url": "Encounter/enc-demo-001" }
+    },
+    {
+      "resource": {
+        "resourceType": "ImagingStudy",
+        "id": "img-demo-001",
+        "status": "available",
+        "modality": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "CT",
+          "display": "Computed Tomography"
+        },
+        "identifier": [
+          {
+            "system": "urn:chuln:accession",
+            "value": "ACC-DEMO-001"
+          }
+        ],
+        "subject": { "reference": "Patient/78673b94-f088-4d4a-96b1-80c383887445" },
+        "encounter": { "reference": "Encounter/enc-demo-001" }
+      },
+      "request": { "method": "PUT", "url": "ImagingStudy/img-demo-001" }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dr-demo-001",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "24627-2",
+              "display": "CT Chest"
+            }
+          ]
+        },
+        "subject": { "reference": "Patient/78673b94-f088-4d4a-96b1-80c383887445" },
+        "encounter": { "reference": "Encounter/enc-demo-001" },
+        "imagingStudy": [{ "reference": "ImagingStudy/img-demo-001" }],
+        "conclusion": "Estudo de TC do tórax sem alterações focais de consolidação. Sem derrame pleural. Mediastino centrado.",
+        "presentedForm": [
+          {
+            "contentType": "text/plain",
+            "language": "pt-PT",
+            "data": "RXN0dWRvIGRlIFRDIGRvIHTDs3JheC4uLiAoZXhlbXBsbyBhbm9uaW1pemFkbyk="
+          }
+        ]
+      },
+      "request": { "method": "PUT", "url": "DiagnosticReport/dr-demo-001" }
+    }
+  ]
+}

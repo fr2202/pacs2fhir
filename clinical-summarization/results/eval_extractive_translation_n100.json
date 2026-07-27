@@ -1,0 +1,42 @@
+{
+  "extractive_pt": {
+    "rouge1_p": 0.6764105314017635,
+    "rouge1_r": 0.33204558575792903,
+    "rouge1_f": 0.34912256879395254,
+    "rouge2_p": 0.5868672361246168,
+    "rouge2_r": 0.27087417055472024,
+    "rouge2_f": 0.2908743533960812,
+    "rougeL_p": 0.6136979165166542,
+    "rougeL_r": 0.2984700060782247,
+    "rougeL_f": 0.3125098797110512,
+    "bertscore_p": 0.7473992705345154,
+    "bertscore_r": 0.6725896596908569,
+    "bertscore_f": 0.6991826891899109,
+    "faithfulness_mean": 0.5384240679920186,
+    "faithfulness_std": 0.3286810061768345,
+    "compression_ratio_mean": 5.48975628504168,
+    "avg_summary_length": 485.06,
+    "n_evaluated": 100,
+    "bertscore_model": "neuralmind/bert-base-portuguese-cased"
+  },
+  "extractive_en": {
+    "rouge1_p": 0.10267234124663145,
+    "rouge1_r": 0.035963432405489104,
+    "rouge1_f": 0.044550933952966644,
+    "rouge2_p": 0.019614077323793125,
+    "rouge2_r": 0.007589898018168745,
+    "rouge2_f": 0.008729248833228589,
+    "rougeL_p": 0.08643138699053524,
+    "rougeL_r": 0.03176575989858467,
+    "rougeL_f": 0.03842761650955365,
+    "bertscore_p": 0.6982094049453735,
+    "bertscore_r": 0.6605882048606873,
+    "bertscore_f": 0.6773499846458435,
+    "faithfulness_mean": 0.42937259484548124,
+    "faithfulness_std": 0.41778445061945624,
+    "compression_ratio_mean": 5.566934569158199,
+    "avg_summary_length": 465.0,
+    "n_evaluated": 100,
+    "bertscore_model": "bert-base-multilingual-cased"
+  }
+}

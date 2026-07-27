@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PACS2FHIR — Clinical Intelligence Platform</title>
+  <meta name="description" content="Transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4 — Luís Alfredo Villacis Vera, IPLeiria / ESTG-Leiria">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050d1a;
+      --bg2: #0a1628;
+      --card: #0d1f3c;
+      --card2: #112540;
+      --teal: #00d4aa;
+      --blue: #4f8ef7;
+      --purple: #9b59f7;
+      --text: #e8f4f8;
+      --muted: #7a9bb5;
+      --border: rgba(0,212,170,0.15);
+      --glow: 0 0 30px rgba(0,212,170,0.2);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(5,13,26,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-weight: 800; font-size: 1.1rem; color: var(--teal); letter-spacing: -0.5px; }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--teal); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 8rem 2.5rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,170,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 20% 70%, rgba(79,142,247,0.06) 0%, transparent 50%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; opacity: 0.04;
+      background-image: linear-gradient(var(--teal) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--teal) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; max-width: 900px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+      padding: .35rem .9rem; border-radius: 100px; font-size: .8rem;
+      color: var(--teal); font-weight: 600; margin-bottom: 1.5rem;
+      letter-spacing: .5px;
+    }
+    .hero-badge::before { content: '●'; font-size: .6rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    h1 {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 1rem;
+    }
+    .grad {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 60%, var(--purple) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.2rem; color: var(--muted); max-width: 650px;
+      margin-bottom: 2.5rem; font-weight: 400; line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .75rem 1.75rem; border-radius: 8px;
+      font-weight: 600; font-size: .9rem; text-decoration: none;
+      transition: all .2s; cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: var(--teal); color: #050d1a;
+    }
+    .btn-primary:hover { background: #00f0c0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,212,170,0.3); }
+    .btn-outline {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── STATS BAND ── */
+    .stats-band {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item {
+      background: var(--bg2); padding: 2rem 1.5rem; text-align: center;
+    }
+    .stat-num {
+      font-size: 2.4rem; font-weight: 900; color: var(--teal);
+      letter-spacing: -1px; line-height: 1;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); margin-top: .4rem; font-weight: 500; }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 2.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-tag {
+      font-size: .75rem; font-weight: 700; color: var(--teal);
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: .75rem;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -1px;
+      margin-bottom: 1rem; line-height: 1.1;
+    }
+    .section-intro { color: var(--muted); max-width: 600px; margin-bottom: 3.5rem; font-size: 1rem; line-height: 1.7; }
+
+    /* ── TIMELINE ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(to bottom, var(--teal), var(--blue), transparent);
+    }
+    .tl-item {
+      position: relative; padding: 0 0 2.5rem 2rem;
+      opacity: 0; transform: translateX(-20px);
+      transition: all .5s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateX(0); }
+    .tl-dot {
+      position: absolute; left: -2.35rem; top: .15rem;
+      width: .8rem; height: .8rem; border-radius: 50%;
+      background: var(--teal); border: 2px solid var(--bg);
+      box-shadow: 0 0 10px rgba(0,212,170,0.5);
+    }
+    .tl-date { font-size: .75rem; color: var(--teal); font-weight: 700; letter-spacing: 1px; margin-bottom: .3rem; }
+    .tl-title { font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+    .tl-text { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── PIPELINE ── */
+    .pipeline {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding: 2rem 0;
+    }
+    .pipe-step {
+      flex: 1; min-width: 130px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem 1rem; text-align: center;
+      position: relative; transition: all .3s;
+    }
+    .pipe-step:hover { border-color: var(--teal); box-shadow: var(--glow); transform: translateY(-3px); }
+    .pipe-icon { font-size: 1.8rem; margin-bottom: .5rem; }
+    .pipe-name { font-size: .75rem; font-weight: 700; color: var(--teal); margin-bottom: .25rem; }
+    .pipe-desc { font-size: .7rem; color: var(--muted); line-height: 1.4; }
+    .pipe-arrow {
+      color: var(--teal); font-size: 1.2rem; padding: 0 .5rem;
+      flex-shrink: 0; opacity: .6;
+    }
+
+    /* ── METRICS GRID ── */
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; margin-top: 2rem;
+    }
+    .metric-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      transition: all .3s;
+    }
+    .metric-card:hover { border-color: var(--teal); box-shadow: var(--glow); }
+    .metric-val { font-size: 2rem; font-weight: 900; color: var(--teal); letter-spacing: -1px; }
+    .metric-name { font-size: .8rem; color: var(--muted); margin-top: .25rem; font-weight: 500; }
+    .metric-tag {
+      display: inline-block; margin-top: .5rem;
+      font-size: .65rem; padding: .2rem .5rem; border-radius: 4px;
+      background: rgba(0,212,170,0.1); color: var(--teal); font-weight: 600;
+    }
+
+    /* ── PUBLICATIONS ── */
+    .pubs-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .pub-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.75rem;
+      transition: all .3s; display: flex; flex-direction: column; gap: .75rem;
+    }
+    .pub-card:hover { border-color: var(--blue); box-shadow: 0 0 30px rgba(79,142,247,0.15); transform: translateY(-2px); }
+    .pub-status {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .7rem; font-weight: 700; padding: .3rem .7rem;
+      border-radius: 100px; width: fit-content; letter-spacing: .5px;
+    }
+    .status-published { background: rgba(0,212,170,0.15); color: var(--teal); border: 1px solid rgba(0,212,170,0.3); }
+    .status-review    { background: rgba(79,142,247,0.15); color: var(--blue);  border: 1px solid rgba(79,142,247,0.3); }
+    .status-progress  { background: rgba(155,89,247,0.15); color: var(--purple);border: 1px solid rgba(155,89,247,0.3); }
+    .pub-venue { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .pub-title { font-size: 1rem; font-weight: 700; line-height: 1.4; color: var(--text); }
+    .pub-authors { font-size: .8rem; color: var(--muted); }
+    .pub-link {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .8rem; color: var(--teal); text-decoration: none;
+      font-weight: 600; margin-top: auto;
+    }
+    .pub-link:hover { text-decoration: underline; }
+
+    /* ── PROJECTS ── */
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .proj-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem;
+      transition: all .3s; position: relative; overflow: hidden;
+    }
+    .proj-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+    }
+    .proj-card:hover { border-color: var(--teal); box-shadow: var(--glow); }
+    .proj-year {
+      font-size: .7rem; font-weight: 700; color: var(--teal);
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: .5rem;
+    }
+    .proj-title { font-size: 1.15rem; font-weight: 700; margin-bottom: .75rem; }
+    .proj-desc { font-size: .875rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .tag {
+      font-size: .7rem; font-weight: 600; padding: .25rem .6rem;
+      border-radius: 4px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); color: var(--muted);
+    }
+
+    /* ── DEMO ── */
+    .demo-tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+    .demo-tab {
+      padding: .5rem 1.2rem; border-radius: 6px; font-size: .85rem;
+      font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); transition: all .2s;
+    }
+    .demo-tab.active { background: var(--teal); color: #050d1a; border-color: var(--teal); }
+    .demo-panel { display: none; }
+    .demo-panel.active { display: block; }
+    .code-block {
+      background: #020810; border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+      color: #a8d8b8; overflow-x: auto; line-height: 1.7;
+      max-height: 420px; overflow-y: auto;
+    }
+    .code-key { color: #7aa2d4; }
+    .code-str { color: #a8d8b8; }
+    .code-num { color: #f0c674; }
+    .code-url { color: #cc99cd; }
+
+    .eval-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+    .eval-table th {
+      background: var(--card2); padding: .75rem 1rem;
+      text-align: left; font-size: .75rem; font-weight: 700;
+      color: var(--teal); letter-spacing: .5px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .eval-table td {
+      padding: .75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+    .eval-table tr:hover td { background: rgba(0,212,170,0.03); }
+    .best { color: var(--teal); font-weight: 700; }
+    .bad  { color: #f06060; }
+    .model-badge {
+      display: inline-block; padding: .15rem .5rem; border-radius: 4px;
+      font-size: .7rem; font-weight: 700; margin-left: .5rem;
+    }
+    .badge-best { background: rgba(0,212,170,0.15); color: var(--teal); }
+    .badge-bad  { background: rgba(240,96,96,0.15);  color: #f06060; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 3rem 2.5rem; text-align: center;
+    }
+    .footer-logo { font-size: 1.4rem; font-weight: 900; color: var(--teal); letter-spacing: -1px; margin-bottom: .5rem; }
+    .footer-sub { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-links a:hover { color: var(--teal); }
+    .footer-copy { font-size: .75rem; color: #3a5a7a; margin-top: 1.5rem; }
+
+    /* ── DIVIDER ── */
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-links { display: none; }
+      .hero { padding: 7rem 1.25rem 4rem; }
+      section { padding: 4rem 1.25rem; }
+      .stats-band { grid-template-columns: repeat(2, 1fr); }
+      .pipeline { gap: .25rem; }
+      .pipe-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">PACS2FHIR<span> · Clinical Intelligence</span></div>
+  <div class="nav-links">
+    <a href="#historia">A História</a>
+    <a href="#arquitetura">Arquitetura</a>
+    <a href="#publicacoes">Publicações</a>
+    <a href="#projetos">Projetos EI</a>
+    <a href="#demo">Demo</a>
+    <a href="#equipa">Equipa</a>
+    <a href="https://github.com/fr2202" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">BLOCKCHAIN.PT · WP9 · IPLeiria / ESTG-Leiria</div>
+    <h1>
+      <span class="grad">PACS2FHIR</span><br>
+      Clinical Intelligence<br>Platform
+    </h1>
+    <p class="hero-sub">
+      Transformação semântica e sumarização automática de relatórios radiológicos —
+      do PACS hospitalar ao padrão FHIR R4, com avaliação multilíngue por modelos de linguagem.
+    </p>
+    <div class="hero-actions">
+      <a href="#arquitetura" class="btn btn-primary">Ver Arquitetura →</a>
+      <a href="https://github.com/fr2202" class="btn btn-outline" target="_blank">⭐ GitHub</a>
+      <a href="https://www.sciencedirect.com/science/article/pii/S1877050926007131" class="btn btn-outline" target="_blank">📄 Artigo Publicado</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stat-item">
+    <div class="stat-num" data-target="10001">0</div>
+    <div class="stat-label">Relatórios PACS processados</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Conformidade HAPI-FHIR R4</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="4">0</div>
+    <div class="stat-label">Publicações académicas</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="2">0</div>
+    <div class="stat-label">Projetos de Eng. Informática</div>
+  </div>
+</div>
+
+<!-- HISTÓRIA -->
+<section id="historia">
+  <div class="container">
+    <div class="section-tag">Origem</div>
+    <h2>Como nasceu o projeto</h2>
+    <p class="section-intro">
+      Tudo começou com um conjunto de dados. Quando o CHULN — Centro Hospitalar Universitário de Lisboa Norte —
+      disponibilizou 10.001 relatórios radiológicos anonimizados no âmbito da agenda do projeto
+      <strong>BLOCKCHAIN.PT</strong>, surgiu a questão central: como transformar estes dados clínicos
+      não estruturados, exportados em JSON aninhado com narrativas em RTF, no padrão universal HL7 FHIR R4?
+    </p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">SETEMBRO 2024</div>
+        <div class="tl-title">Acesso aos dados CHULN via BLOCKCHAIN.PT</div>
+        <div class="tl-text">Recebemos 10.001 relatórios de TC anonimizados do Centro Hospitalar Universitário de Lisboa Norte, em formato JSON com narrativas RTF incorporadas — o ponto de partida de tudo.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">OUT – DEZ 2024</div>
+        <div class="tl-title">Exploração dos dados e análise da norma HL7 FHIR</div>
+        <div class="tl-text">Mapeamento da estrutura dos dados: campos em falta (exam_date, episode), qualidade da coleção, definição das perguntas de investigação (SLR) e escolha da norma FHIR R4 como destino.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">JAN – MAR 2025</div>
+        <div class="tl-title">Pipeline PACS→FHIR + integração Projeto EI 2024/2025</div>
+        <div class="tl-text">Desenvolvimento do pipeline multi-agente em Python. Integração com o projeto de Engenharia Informática (aplicação web com API Flask + MongoDB). Throughput de 1.173 ficheiros/segundo, zero erros.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">JULHO 2025</div>
+        <div class="tl-title">Primeiro artigo submetido — HCIST 2025</div>
+        <div class="tl-text">"PACS-to-FHIR Transformation and Clinical Text: a Case Study with Computed Tomography" submetido e aceite na conferência HCIST. Publicado no Procedia Computer Science (ScienceDirect).</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">NOV 2025</div>
+        <div class="tl-title">Apresentação na HCIST + arranque do módulo de sumarização</div>
+        <div class="tl-text">Apresentação da conferência em Lisboa. Início do desenvolvimento do módulo de sumarização clínica com LLMs — PTT5, mT5, modelos extrativos e avaliação EN/PT com radiologistas.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">FEV – MAI 2026</div>
+        <div class="tl-title">Avaliação multidimensional + Projeto EI 2025/2026</div>
+        <div class="tl-text">Framework de avaliação com ROUGE, BERTScore, fidelidade clínica e human judgement por médicos radiologistas. Co-orientação do Projeto EI 51 (servidor HAPI-FHIR) e EI 52 (dashboard médico).</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">JUNHO – JULHO 2026</div>
+        <div class="tl-title">Submissão de 3 publicações + escrita da tese</div>
+        <div class="tl-text">Submissão dos artigos 2 (AI in Medicine) e 3 (MAKE/MDPI). Capítulo de livro para o projeto Blockchain. Escrita da tese de mestrado completa com resultados reais validados.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARQUITETURA -->
+<section id="arquitetura" style="background: var(--bg2);">
+  <div class="container">
+    <div class="section-tag">Pipeline Técnico</div>
+    <h2>Arquitetura do sistema</h2>
+    <p class="section-intro">
+      Uma arquitetura multi-agente em Python que resolve três desafios simultâneos:
+      JSON profundamente aninhado, narrativas clínicas em RTF e validação FHIR em escala.
+    </p>
+
+    <p style="font-size:.8rem; color:var(--teal); font-weight:700; letter-spacing:1px; margin-bottom:.75rem;">MÓDULO 1 — TRANSFORMAÇÃO PACS → FHIR R4</p>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon">📂</div>
+        <div class="pipe-name">PACS JSON</div>
+        <div class="pipe-desc">10.001 ficheiros .txt exportados com JSON aninhado + RTF</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🔍</div>
+        <div class="pipe-name">RTF Parser Agent</div>
+        <div class="pipe-desc">Remove escapes hex, control words, extrai texto clínico limpo</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🗺️</div>
+        <div class="pipe-name">Mapper Agents</div>
+        <div class="pipe-desc">Patient · Encounter · ImagingStudy · DiagnosticReport com LOINC</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">✅</div>
+        <div class="pipe-name">Validator Agent</div>
+        <div class="pipe-desc">Pydantic R4 + HAPI-FHIR externo. Zero erros em 10.001 bundles.</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">📦</div>
+        <div class="pipe-name">FHIR Bundle</div>
+        <div class="pipe-desc">Transaction Bundle R4 por relatório. 1.173 ficheiros/seg.</div>
+      </div>
+    </div>
+
+    <p style="font-size:.8rem; color:var(--blue); font-weight:700; letter-spacing:1px; margin: 2.5rem 0 .75rem;">MÓDULO 2 — SUMARIZAÇÃO CLÍNICA COM LLMs</p>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon">📋</div>
+        <div class="pipe-name">DiagnosticReport</div>
+        <div class="pipe-desc">9.921 relatórios de TC (train/val/test split)</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🤖</div>
+        <div class="pipe-name">LLM Models</div>
+        <div class="pipe-desc">PTT5-FT · mT5-XLSum · Extractive-PT · Gemma 3.1</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">📊</div>
+        <div class="pipe-name">Avaliação Multi-dim.</div>
+        <div class="pipe-desc">ROUGE · BERTScore · Fidelidade · Human Judgement por radiologistas</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🌐</div>
+        <div class="pipe-name">Cross-lingual</div>
+        <div class="pipe-desc">Avaliação bilíngue PT + EN com golden collection manual</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid fade-up" style="margin-top:3rem;">
+      <div class="metric-card">
+        <div class="metric-val">1.173</div>
+        <div class="metric-name">Ficheiros/segundo (pipeline completo)</div>
+        <div class="metric-tag">FHIR Pipeline</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">8,5s</div>
+        <div class="metric-name">Tempo total para 10.001 relatórios</div>
+        <div class="metric-tag">FHIR Pipeline</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0.493</div>
+        <div class="metric-name">ROUGE-1 F — PTT5-FT v2 (melhor modelo)</div>
+        <div class="metric-tag">Sumarização</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0.805</div>
+        <div class="metric-name">BERTScore F — PTT5-FT v2</div>
+        <div class="metric-tag">Sumarização</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0,41ms</div>
+        <div class="metric-name">Latência média por Bundle FHIR</div>
+        <div class="metric-tag">Performance</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">100%</div>
+        <div class="metric-name">DiagnosticReport completude (Patient, Encounter, ImagingStudy)</div>
+        <div class="metric-tag">Qualidade</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICAÇÕES -->
+<section id="publicacoes">
+  <div class="container">
+    <div class="section-tag">Outputs Académicos</div>
+    <h2>Publicações</h2>
+    <p class="section-intro">3 artigos científicos e 1 capítulo de livro produzidos no âmbito deste projeto de investigação.</p>
+
+    <div class="pubs-grid fade-up">
+      <div class="pub-card">
+        <span class="pub-status status-published">✓ Publicado</span>
+        <div class="pub-venue">Procedia Computer Science · ScienceDirect · HCIST 2025</div>
+        <div class="pub-title">PACS-to-FHIR Transformation and Clinical Text: a Case Study with Computed Tomography</div>
+        <div class="pub-authors">L. Villacis Vera · R. Malheiro · O. Craveiro — 2025</div>
+        <a class="pub-link" href="https://www.sciencedirect.com/science/article/pii/S1877050926007131" target="_blank">Ler artigo ↗</a>
+      </div>
+
+      <div class="pub-card">
+        <span class="pub-status status-review">⏳ Under Review</span>
+        <div class="pub-venue">Artificial Intelligence in Medicine · Elsevier · Q1</div>
+        <div class="pub-title">LLM-Based Medical Summarization Survey and a Multidimensional Evaluation Framework</div>
+        <div class="pub-authors">L. Villacis Vera · R. Malheiro · O. Craveiro — Submetido Jun 2026</div>
+        <span style="font-size:.78rem; color:var(--muted);">Survey sistemático de sumarização clínica com LLMs + framework de avaliação multidimensional</span>
+      </div>
+
+      <div class="pub-card">
+        <span class="pub-status status-review">⏳ Under Review</span>
+        <div class="pub-venue">Machine Learning and Knowledge Extraction · MDPI · Q1</div>
+        <div class="pub-title">Multidimensional Evaluation Framework for Local LLM-Based Clinical Summarization: A Cross-Lingual Prototype on Computed Tomography Reports</div>
+        <div class="pub-authors">L. Villacis Vera · R. Malheiro · O. Craveiro — Submetido Jun 2026</div>
+        <span style="font-size:.78rem; color:var(--muted);">Avaliação cross-lingual PT/EN com PTT5, mT5, modelos extrativos e validação por radiologistas</span>
+      </div>
+
+      <div class="pub-card">
+        <span class="pub-status status-progress">✍ Em preparação</span>
+        <div class="pub-venue">Capítulo de Livro · Blockchain.PT · Part III, Chapter 7</div>
+        <div class="pub-title">Governance, Compliance, and Cross-Border Interoperability in Clinical Data Platforms</div>
+        <div class="pub-authors">L. Villacis Vera · R. Malheiro · O. Craveiro · V. Távora — Jul 2026</div>
+        <span style="font-size:.78rem; color:var(--muted);">Capítulo integrado no livro do projeto BLOCKCHAIN.PT com foco em conformidade e interoperabilidade clínica</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJETOS EI -->
+<section id="projetos" style="background: var(--bg2);">
+  <div class="container">
+    <div class="section-tag">Co-orientação</div>
+    <h2>Projetos de Engenharia Informática</h2>
+    <p class="section-intro">
+      O trabalho de investigação foi integrado em dois projetos de licenciatura co-orientados,
+      permitindo validar o sistema em contexto real de desenvolvimento de software.
+    </p>
+    <div class="projects-grid fade-up">
+      <div class="proj-card">
+        <div class="proj-year">Projeto EI · 2024 / 2025</div>
+        <div class="proj-title">Plataforma Web de Conversão PACS → FHIR</div>
+        <div class="proj-desc">
+          Integração do pipeline de transformação FHIR numa aplicação web completa. Backend Flask com
+          endpoints RESTful para conversão on-demand; frontend para visualização dos bundles FHIR gerados.
+          Persistência em MongoDB. Os alunos integraram diretamente a API desenvolvida no projeto de investigação.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">Python / Flask</span>
+          <span class="tag">MongoDB</span>
+          <span class="tag">FHIR R4</span>
+          <span class="tag">REST API</span>
+          <span class="tag">HTML/JS Frontend</span>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-year">Projeto EI · 2025 / 2026</div>
+        <div class="proj-title">Servidor HAPI-FHIR + Dashboard Médico com Resumo Clínico</div>
+        <div class="proj-desc">
+          Dois projetos complementares: <strong>Projeto 51</strong> — servidor HAPI-FHIR R4 configurado
+          e populado com os bundles gerados; <strong>Projeto 52</strong> — dashboard web médico com
+          integração do módulo de sumarização clínica, com máquina virtual Ubuntu para deploy.
+          GitHub público com todo o código e documentação.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">HAPI-FHIR</span>
+          <span class="tag">Dashboard Web</span>
+          <span class="tag">LLM Summarization</span>
+          <span class="tag">Ubuntu VM</span>
+          <span class="tag">.NET / Java</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem; padding:1.25rem 1.5rem; background:var(--card); border:1px solid var(--border); border-radius:10px; font-size:.875rem; color:var(--muted);">
+      🔗 Repositório do Projeto EI 2024/2025:
+      <a href="https://github.com/rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico" target="_blank"
+         style="color:var(--teal); text-decoration:none; font-weight:600;">
+        Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico ↗
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="container">
+    <div class="section-tag">Demonstração</div>
+    <h2>Resultados em detalhe</h2>
+    <p class="section-intro">Exemplos reais do output do pipeline e comparação dos modelos de sumarização.</p>
+
+    <div class="demo-tabs">
+      <button class="demo-tab active" onclick="showTab('fhir')">FHIR Bundle (JSON)</button>
+      <button class="demo-tab" onclick="showTab('eval')">Avaliação de Sumarização</button>
+      <button class="demo-tab" onclick="showTab('summary')">Exemplo de Resumo</button>
+    </div>
+
+    <div id="tab-fhir" class="demo-panel active">
+      <div class="code-block"><pre><span class="code-key">{</span>
+  <span class="code-key">"resourceType"</span>: <span class="code-str">"Bundle"</span>,
+  <span class="code-key">"type"</span>: <span class="code-str">"transaction"</span>,
+  <span class="code-key">"id"</span>: <span class="code-str">"102021010247-bundle"</span>,
+  <span class="code-key">"entry"</span>: [
+    <span class="code-key">{</span>
+      <span class="code-key">"resource"</span>: <span class="code-key">{</span>
+        <span class="code-key">"resourceType"</span>: <span class="code-str">"Patient"</span>,
+        <span class="code-key">"id"</span>: <span class="code-str">"78673b94-f088-4d4a-96b1-80c383887445"</span>,
+        <span class="code-key">"identifier"</span>: [<span class="code-key">{</span>
+          <span class="code-key">"system"</span>: <span class="code-url">"urn:chuln:patient-id"</span>,
+          <span class="code-key">"value"</span>: <span class="code-str">"102021010247"</span>
+        <span class="code-key">}]</span>,
+        <span class="code-key">"birthDate"</span>: <span class="code-str">"1958-03-12"</span>
+      <span class="code-key">}</span>
+    <span class="code-key">}</span>,
+    <span class="code-key">{</span>
+      <span class="code-key">"resource"</span>: <span class="code-key">{</span>
+        <span class="code-key">"resourceType"</span>: <span class="code-str">"DiagnosticReport"</span>,
+        <span class="code-key">"status"</span>: <span class="code-str">"final"</span>,
+        <span class="code-key">"code"</span>: <span class="code-key">{</span>
+          <span class="code-key">"coding"</span>: [<span class="code-key">{</span>
+            <span class="code-key">"system"</span>: <span class="code-url">"http://loinc.org"</span>,
+            <span class="code-key">"code"</span>: <span class="code-str">"24627-2"</span>,
+            <span class="code-key">"display"</span>: <span class="code-str">"CT Chest"</span>
+          <span class="code-key">}]</span>
+        <span class="code-key">}</span>,
+        <span class="code-key">"conclusion"</span>: <span class="code-str">"Parênquima pulmonar sem alterações focais..."</span>,
+        <span class="code-key">"presentedForm"</span>: [<span class="code-key">{</span>
+          <span class="code-key">"contentType"</span>: <span class="code-str">"text/plain"</span>,
+          <span class="code-key">"data"</span>: <span class="code-str">"&lt;base64 do relatório RTF limpo&gt;"</span>
+        <span class="code-key">}]</span>
+      <span class="code-key">}</span>
+    <span class="code-key">}</span>,
+    <span class="code-key">{</span>
+      <span class="code-key">"resource"</span>: <span class="code-key">{</span>
+        <span class="code-key">"resourceType"</span>: <span class="code-str">"ImagingStudy"</span>,
+        <span class="code-key">"status"</span>: <span class="code-str">"available"</span>,
+        <span class="code-key">"modality"</span>: <span class="code-key">{</span>
+          <span class="code-key">"system"</span>: <span class="code-url">"http://dicom.nema.org/resources/ontology/DCM"</span>,
+          <span class="code-key">"code"</span>: <span class="code-str">"CT"</span>
+        <span class="code-key">}</span>,
+        <span class="code-key">"identifier"</span>: [<span class="code-key">{</span>
+          <span class="code-key">"system"</span>: <span class="code-url">"urn:chuln:accession"</span>,
+          <span class="code-key">"value"</span>: <span class="code-str">"ACC-2021-010247"</span>
+        <span class="code-key">}]</span>
+      <span class="code-key">}</span>
+    <span class="code-key">}</span>
+  <span class="code-key">]</span>
+<span class="code-key">}</span></pre></div>
+      <p style="font-size:.78rem; color:var(--muted); margin-top:.75rem;">
+        Bundle FHIR R4 real (anonimizado). Cada relatório gera Patient + Encounter + ImagingStudy + DiagnosticReport + Organization CHULN.
+        IDs determinísticos UUID5 para reruns idempotentes.
+      </p>
+    </div>
+
+    <div id="tab-eval" class="demo-panel">
+      <div style="overflow-x:auto; border-radius:10px; border:1px solid var(--border);">
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>Modelo</th>
+              <th>ROUGE-1 F</th>
+              <th>ROUGE-2 F</th>
+              <th>BERTScore F</th>
+              <th>Fidelidade</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>PTT5-FT v2</strong> <span class="model-badge badge-best">MELHOR</span></td>
+              <td class="best">0.493</td>
+              <td class="best">0.470</td>
+              <td class="best">0.805</td>
+              <td>0.592</td>
+              <td style="font-size:.78rem; color:var(--muted);">Fine-tuned em PT, melhor equilíbrio qualidade/fidelidade</td>
+            </tr>
+            <tr>
+              <td><strong>Extractive-PT</strong></td>
+              <td>0.349</td>
+              <td>0.301</td>
+              <td>0.699</td>
+              <td>0.538</td>
+              <td style="font-size:.78rem; color:var(--muted);">Extração de frases-chave, sem geração de texto</td>
+            </tr>
+            <tr>
+              <td><strong>mT5-XLSum</strong> <span class="model-badge badge-bad">FRACO</span></td>
+              <td class="bad">0.118</td>
+              <td class="bad">0.043</td>
+              <td>0.701</td>
+              <td class="bad">0.232</td>
+              <td style="font-size:.78rem; color:var(--muted);">Alucinações graves no domínio clínico PT</td>
+            </tr>
+            <tr>
+              <td><strong>Gemma 3.1 (local)</strong></td>
+              <td>0.341</td>
+              <td>0.288</td>
+              <td>0.762</td>
+              <td>0.571</td>
+              <td style="font-size:.78rem; color:var(--muted);">LLM local, privacidade garantida, sem cloud</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.78rem; color:var(--muted); margin-top:.75rem;">
+        Avaliado sobre 616 relatórios de teste com referências manuais criadas por 2 radiologistas do CHULN.
+        Dataset total: 9.921 relatórios (train=7.937 · val=992 · test=992).
+      </p>
+    </div>
+
+    <div id="tab-summary" class="demo-panel">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <p style="font-size:.7rem; color:var(--muted); font-weight:700; letter-spacing:1px; margin-bottom:.75rem;">RELATÓRIO ORIGINAL (excerto)</p>
+          <p style="font-size:.82rem; color:var(--text); line-height:1.7; font-family:'JetBrains Mono', monospace;">
+            "Estudo de TC do tórax sem contraste endovenoso. Parênquima pulmonar sem alterações focais de consolidação ou derrame pleural. Mediastino centrado sem adenopatias de dimensão significativa. Estruturas ósseas sem alterações líticas ou blásticas evidentes. Conclusão: Estudo de TC do tórax sem alterações significativas..."
+          </p>
+        </div>
+        <div style="background:var(--card2); border:1px solid rgba(0,212,170,0.2); border-radius:10px; padding:1.25rem;">
+          <p style="font-size:.7rem; color:var(--teal); font-weight:700; letter-spacing:1px; margin-bottom:.75rem;">RESUMO — PTT5-FT v2</p>
+          <p style="font-size:.82rem; color:var(--text); line-height:1.7; font-family:'JetBrains Mono', monospace;">
+            "TC tórax sem contraste: parênquima sem consolidação ou derrame pleural; mediastino centrado sem adenopatias; estruturas ósseas normais. Sem alterações significativas."
+          </p>
+          <div style="margin-top:.75rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+            <span style="font-size:.68rem; background:rgba(0,212,170,0.1); color:var(--teal); padding:.2rem .5rem; border-radius:4px; font-weight:700;">ROUGE-1: 0.52</span>
+            <span style="font-size:.68rem; background:rgba(79,142,247,0.1); color:var(--blue); padding:.2rem .5rem; border-radius:4px; font-weight:700;">BERTScore: 0.81</span>
+            <span style="font-size:.68rem; background:rgba(155,89,247,0.1); color:var(--purple); padding:.2rem .5rem; border-radius:4px; font-weight:700;">Fidelidade: 0.93</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPA -->
+<section id="equipa" style="background: var(--bg2);">
+  <div class="container">
+    <div class="section-tag">Equipa</div>
+    <h2>Investigadores e Orientadores</h2>
+    <p class="section-intro">Projeto desenvolvido no Departamento de Engenharia Informática da ESTG-IPLeiria no âmbito da bolsa BLOCKCHAIN.PT WP2, com financiamento PRR / Next Generation EU.</p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;" class="fade-up">
+
+      <!-- Luis -->
+      <div style="background:var(--card); border:1px solid rgba(0,212,170,0.3); border-radius:14px; padding:1.75rem; position:relative; overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--blue));"></div>
+        <div style="font-size:2.5rem; margin-bottom:.75rem;">👨‍💻</div>
+        <div style="font-size:.7rem; color:var(--teal); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:.25rem;">Bolseiro de Investigação</div>
+        <div style="font-size:1.05rem; font-weight:800; margin-bottom:.5rem;">Luís Alfredo Villacis Vera</div>
+        <div style="font-size:.82rem; color:var(--muted); line-height:1.6; margin-bottom:1rem;">
+          Investigador e mestrando em Engenharia Informática no IPLeiria / ESTG-Leiria.
+          De origem equatoriana, desenvolveu esta plataforma no âmbito da bolsa BLOCKCHAIN.PT WP2,
+          combinando interoperabilidade clínica, processamento de linguagem natural e avaliação de LLMs
+          aplicados a radiologia hospitalar.
+        </div>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+          <span style="font-size:.68rem; background:rgba(0,212,170,0.1); color:var(--teal); padding:.2rem .6rem; border-radius:4px; font-weight:600;">HL7 FHIR R4</span>
+          <span style="font-size:.68rem; background:rgba(79,142,247,0.1); color:var(--blue); padding:.2rem .6rem; border-radius:4px; font-weight:600;">NLP / LLMs</span>
+          <span style="font-size:.68rem; background:rgba(155,89,247,0.1); color:var(--purple); padding:.2rem .6rem; border-radius:4px; font-weight:600;">Python · FHIR</span>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:.75rem;">
+          <a href="https://github.com/fr2202" target="_blank" style="font-size:.8rem; color:var(--teal); text-decoration:none; font-weight:600;">GitHub ↗</a>
+          <a href="mailto:luisalfre2202@gmail.com" style="font-size:.8rem; color:var(--muted); text-decoration:none;">luisalfre2202@gmail.com</a>
+        </div>
+      </div>
+
+      <!-- Ricardo Malheiro -->
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem;">
+        <div style="font-size:2.5rem; margin-bottom:.75rem;">🎓</div>
+        <div style="font-size:.7rem; color:var(--blue); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:.25rem;">Orientador Científico</div>
+        <div style="font-size:1.05rem; font-weight:800; margin-bottom:.5rem;">Prof. Ricardo Manuel<br>da Silva Malheiro</div>
+        <div style="font-size:.82rem; color:var(--muted); line-height:1.6;">
+          Professor e investigador no Departamento de Engenharia Informática da ESTG-IPLeiria.
+          Orientador científico da bolsa BLOCKCHAIN.PT WP2 e co-autor das publicações deste projeto.
+        </div>
+        <div style="margin-top:1rem;">
+          <span style="font-size:.68rem; background:rgba(79,142,247,0.1); color:var(--blue); padding:.2rem .6rem; border-radius:4px; font-weight:600;">ESTG · IPLeiria</span>
+        </div>
+      </div>
+
+      <!-- Olga Craveiro -->
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem;">
+        <div style="font-size:2.5rem; margin-bottom:.75rem;">🎓</div>
+        <div style="font-size:.7rem; color:var(--blue); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:.25rem;">Orientadora Científica</div>
+        <div style="font-size:1.05rem; font-weight:800; margin-bottom:.5rem;">Prof. Olga Marina<br>Freitas Craveiro</div>
+        <div style="font-size:.82rem; color:var(--muted); line-height:1.6;">
+          Professora e investigadora no Departamento de Engenharia Informática da ESTG-IPLeiria.
+          Co-orientadora científica e co-autora das publicações produzidas no âmbito deste projeto.
+        </div>
+        <div style="margin-top:1rem;">
+          <span style="font-size:.68rem; background:rgba(79,142,247,0.1); color:var(--blue); padding:.2rem .6rem; border-radius:4px; font-weight:600;">ESTG · IPLeiria</span>
+        </div>
+      </div>
+
+      <!-- Vitor Tavora -->
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem;">
+        <div style="font-size:2.5rem; margin-bottom:.75rem;">🏛️</div>
+        <div style="font-size:.7rem; color:var(--purple); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:.25rem;">Coordenador do Projeto</div>
+        <div style="font-size:1.05rem; font-weight:800; margin-bottom:.5rem;">Prof. Vítor Manuel de Oliveira<br>Pegado de Noronha e Távora</div>
+        <div style="font-size:.82rem; color:var(--muted); line-height:1.6;">
+          Coordenador do projeto BLOCKCHAIN.PT — Agenda "Descentralizar Portugal com Blockchain" (WP2 – Saúde e Bem-estar), co-financiado pelo PRR / Next Generation EU.
+        </div>
+        <div style="margin-top:1rem;">
+          <span style="font-size:.68rem; background:rgba(155,89,247,0.1); color:var(--purple); padding:.2rem .6rem; border-radius:4px; font-weight:600;">BLOCKCHAIN.PT · WP2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funding bar -->
+    <div style="margin-top:2.5rem; padding:1.25rem 1.5rem; background:rgba(0,212,170,0.04); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+      <div style="font-size:1.5rem;">🇪🇺</div>
+      <div>
+        <div style="font-size:.8rem; font-weight:700; color:var(--text); margin-bottom:.2rem;">Financiamento</div>
+        <div style="font-size:.78rem; color:var(--muted); line-height:1.5;">
+          Bolsa de Investigação BLOCKCHAIN.PT — Agenda "Descentralizar Portugal com Blockchain" (WP2 – Saúde e Bem-estar)<br>
+          Ref. <strong style="color:var(--text);">02/C05-i01.01/2022.PC644918095-00000033</strong> · PRR – Plano de Recuperação e Resiliência · Next Generation EU · 2021–2026
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">PACS2FHIR</div>
+  <div class="footer-sub">Clinical Intelligence Platform · Luís Alfredo Villacis Vera<br>
+    Mestrado em Engenharia Informática · ESTG · Instituto Politécnico de Leiria<br>
+    BLOCKCHAIN.PT WP2 · PRR / Next Generation EU · Ref. 02/C05-i01.01/2022.PC644918095-00000033
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/fr2202" target="_blank">GitHub · fr2202</a>
+    <a href="https://www.sciencedirect.com/science/article/pii/S1877050926007131" target="_blank">Artigo HCIST (Publicado)</a>
+    <a href="https://github.com/rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico" target="_blank">Projeto EI 2024/2025</a>
+    <a href="https://www.ipleiria.pt" target="_blank">IPLeiria</a>
+    <a href="mailto:luisalfre2202@gmail.com">Contacto</a>
+  </div>
+  <div class="footer-copy">© 2026 Luís A. Villacis Vera · Prof. R. Malheiro · Prof. O. Craveiro · Prof. V. Távora — BLOCKCHAIN.PT</div>
+</footer>
+
+<script>
+  // Animated counters
+  function animateCounter(el) {
+    const target = +el.dataset.target;
+    const duration = 1800;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.floor(current).toLocaleString('pt-PT');
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Trigger counters
+        entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+        // Also trigger any data-target at top level
+        if (entry.target.dataset.target) animateCounter(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.tl-item, .fade-up').forEach(el => observer.observe(el));
+
+  // Also observe stat-nums for counters when they scroll into view
+  const statsObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+        statsObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelector('.stats-band') && statsObs.observe(document.querySelector('.stats-band'));
+
+  // Demo tabs
+  function showTab(name) {
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

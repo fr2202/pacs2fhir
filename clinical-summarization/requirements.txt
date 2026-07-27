@@ -1,0 +1,27 @@
+# ── Core FHIR pipeline ───────────────────────────────────────────────────────
+fhir.resources>=6.5.0,<7.0.0
+striprtf>=0.0.26
+python-dateutil>=2.8.2
+tqdm>=4.65.0
+
+# ── Summarization: extractive ────────────────────────────────────────────────
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# ── Summarization: abstractive + translation (HuggingFace) ──────────────────
+# Install with: pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cu118
+# (or cu121 / cpu depending on your CUDA version)
+torch>=2.0.0
+transformers>=4.40.0
+sentencepiece>=0.1.99          # required by mT5 and MarianMT tokenisers
+protobuf>=3.20.0               # required by sentencepiece
+
+# ── Evaluation ───────────────────────────────────────────────────────────────
+rouge-score>=0.1.2
+
+# BERTScore — semantic similarity
+# Requires a compatible torch version (installed above)
+bert-score>=0.3.13
+
+# Faithfulness scoring via NLI
+sentence-transformers>=2.7.0
