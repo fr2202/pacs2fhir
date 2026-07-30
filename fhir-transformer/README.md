@@ -2,7 +2,7 @@
 
 > Pipeline multi-agente em Python para conversão de relatórios PACS (JSON + RTF) para FHIR R4 Bundles.
 
-Parte do projeto **[PACS2FHIR — Clinical Intelligence Platform](https://fr2202.github.io/pacs2fhir)** · BLOCKCHAIN.PT WP2 · IPLeiria / ESTG-Leiria
+Parte do projeto **[SEMITRAX — SEMantic Interoperability and TRAnsformation for Healthcare data eXchange](https://fr2202.github.io/semitrax)** · IPLeiria / ESTG-Leiria
 
 ## Resultados
 

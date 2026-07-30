@@ -2,7 +2,7 @@
 
 > Transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4, com avaliação multilíngue por modelos de linguagem de grande escala.
 
-**🌐 [Ver página do projeto](https://fr2202.github.io/pacs2fhir)** · **📄 [Artigo publicado (ScienceDirect)](https://www.sciencedirect.com/science/article/pii/S1877050926007131)**
+**🌐 [Ver página do projeto](https://fr2202.github.io/semitrax)** · **📄 [Artigo publicado (ScienceDirect)](https://www.sciencedirect.com/science/article/pii/S1877050926007131)**
 
 ---
 
@@ -26,7 +26,7 @@ Embora o trabalho tenha sido desenvolvido no contexto da bolsa BLOCKCHAIN.PT (WP
 
 | Projeto | Descrição | Repo |
 |---------|-----------|------|
-| **Página do projeto** | GitHub Pages — documentação, resultados, demos | [`fr2202/pacs2fhir`](https://github.com/fr2202/pacs2fhir) |
+| **Página do projeto** | GitHub Pages — documentação, resultados, demos | [`fr2202/semitrax`](https://github.com/fr2202/semitrax) |
 | **Pipeline FHIR** | Transformação PACS→FHIR R4 multi-agente em Python | [`fr2202/fhir-transformer`](https://github.com/fr2202/fhir-transformer) |
 | **API FHIR** | API Flask original de conversão PACS→FHIR (v1) | [`fr2202/APIFHIR`](https://github.com/fr2202/APIFHIR) |
 | **Sumarização** | Sumarização clínica com LLMs — PTT5, mT5, Gemma, avaliação multilíngue | [`fr2202/clinical-summarization`](https://github.com/fr2202/clinical-summarization) |
