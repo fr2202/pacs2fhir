@@ -1,6 +1,6 @@
-# PACS2FHIR — Clinical Intelligence Platform
+# SEMITRAX — SEMantic Interoperability and TRAnsformation for Healthcare data eXchange
 
-> Transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4, com avaliação multilíngue por modelos de linguagem.
+> Transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4, com avaliação multilíngue por modelos de linguagem de grande escala.
 
 **🌐 [Ver página do projeto](https://fr2202.github.io/pacs2fhir)** · **📄 [Artigo publicado (ScienceDirect)](https://www.sciencedirect.com/science/article/pii/S1877050926007131)**
 
@@ -8,12 +8,17 @@
 
 ## Sobre o projeto
 
-Este projeto nasceu quando a empresa **BioGHP** — custodiante dos dados clínicos no âmbito do projeto **BLOCKCHAIN.PT** (WP9 – ESTG-Leiria) — disponibilizou 10.001 relatórios radiológicos anonimizados provenientes do CHULN (Centro Hospitalar Universitário de Lisboa Norte). A questão central era: como transformar dados clínicos não estruturados — exportados em JSON aninhado com narrativas em RTF — no padrão universal **HL7 FHIR R4**?
+**SEMITRAX** é uma plataforma de investigação focada em **interoperabilidade semântica clínica** e **processamento de linguagem natural aplicado à radiologia**. O trabalho parte de um conjunto real de 10.001 relatórios de Tomografia Computadorizada anonimizados provenientes do CHULN (Centro Hospitalar Universitário de Lisboa Norte), abordando dois problemas concretos:
 
-O resultado é uma plataforma com dois módulos integrados:
+1. Como transformar dados clínicos não estruturados — exportados em JSON aninhado com narrativas em RTF — no padrão universal **HL7 FHIR R4**, de forma automática, validada e escalável?
+2. Como gerar resumos clínicos automáticos de qualidade a partir desses relatórios, com avaliação rigorosa em português e inglês?
 
-1. **Pipeline PACS → FHIR R4** — transformação multi-agente com 100% de conformidade HAPI-FHIR, 1.173 ficheiros/segundo, zero erros em 10.001 relatórios de TC.
-2. **Sumarização clínica com LLMs** — avaliação multidimensional (ROUGE, BERTScore, fidelidade, human judgement) de modelos PTT5, mT5, Extractive e Gemma 3.1 em português e inglês.
+O resultado são dois módulos integrados:
+
+- **Pipeline PACS → FHIR R4** — transformação multi-agente com 100% de conformidade HAPI-FHIR, 1.173 ficheiros/segundo, zero erros em 10.001 relatórios de TC.
+- **Sumarização clínica com LLMs** — avaliação multidimensional (ROUGE, BERTScore, fidelidade clínica, human judgement) de modelos PTT5, mT5, Extractive e Gemma 3.1 em português e inglês.
+
+Embora o trabalho tenha sido desenvolvido no contexto da bolsa BLOCKCHAIN.PT (WP2 – Saúde e Bem-estar), o foco científico é a **interoperabilidade semântica e a transformação de dados clínicos para FHIR**, sendo esse o contributo principal para a comunidade.
 
 ---
 
@@ -25,15 +30,16 @@ O resultado é uma plataforma com dois módulos integrados:
 | **Pipeline FHIR** | Transformação PACS→FHIR R4 multi-agente em Python | [`fr2202/fhir-transformer`](https://github.com/fr2202/fhir-transformer) |
 | **API FHIR** | API Flask original de conversão PACS→FHIR (v1) | [`fr2202/APIFHIR`](https://github.com/fr2202/APIFHIR) |
 | **Sumarização** | Sumarização clínica com LLMs — PTT5, mT5, Gemma, avaliação multilíngue | [`fr2202/clinical-summarization`](https://github.com/fr2202/clinical-summarization) |
-| **Projeto Sumarização (EI)** | Projeto de licenciatura — sumarização clínica integrada | [`fr2202/proyecto51`](https://github.com/fr2202/proyecto51) |
 | **Projeto EI 2024/2025** | Dashboard web com integração FHIR e resumo clínico (Flask + MongoDB) | [`rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico`](https://github.com/rsmal-ipl/Dashboard-Medico-Web-com-Integracao-de-Sistema-de-Resumo-Clinico) |
-| **Projeto EI 2025/2026 — 52** | Dashboard médico com sumarização clínica integrada + VM Ubuntu | *(em publicação)* |
+| **Projeto EI 2025/2026 — 52** | Servidor HAPI-FHIR + pipeline de ingestão (Docker + PostgreSQL) | *(em publicação)* |
+| **Projeto EI 2025/2026 — 51** | Dashboard médico web com resumo clínico integrado | *(em publicação)* |
 
 ---
 
 ## Resultados principais
 
 ### Pipeline FHIR
+
 | Métrica | Valor |
 |---------|-------|
 | Registos processados | **10.001** |
@@ -44,6 +50,7 @@ O resultado é uma plataforma com dois módulos integrados:
 | Erros de validação | **0** |
 
 ### Sumarização Clínica
+
 | Modelo | ROUGE-1 F | ROUGE-2 F | BERTScore F | Fidelidade |
 |--------|-----------|-----------|-------------|------------|
 | **PTT5-FT v2** ⭐ | **0.493** | **0.470** | **0.805** | 0.592 |
@@ -89,7 +96,7 @@ PACS JSON (RTF aninhado)
 
 ## Publicações
 
-1. **[Publicado]** Villacis Vera L., Malheiro R., Craveiro O. *"PACS-to-FHIR Transformation and Clinical Text: a Case Study with Computed Tomography."* Procedia Computer Science (ScienceDirect) · HCIST 2025. DOI: [10.1016/j.procs.2026...](https://www.sciencedirect.com/science/article/pii/S1877050926007131)
+1. **[Publicado]** Villacis Vera L., Malheiro R., Craveiro O. *"PACS-to-FHIR Transformation and Clinical Text: a Case Study with Computed Tomography."* Procedia Computer Science (ScienceDirect) · CENTERIS | ProjMAN | HCist 2025, Abu Dhabi, UAE. [Link](https://www.sciencedirect.com/science/article/pii/S1877050926007131)
 
 2. **[Under Review]** Villacis Vera L., Malheiro R., Craveiro O. *"LLM-Based Medical Summarization Survey and a Multidimensional Evaluation Framework."* Artificial Intelligence in Medicine · Elsevier · Q1 · Submetido Jun 2026.
 
@@ -151,20 +158,20 @@ python evaluate_all.py
 
 | Nome | Papel | Instituição |
 |------|-------|-------------|
-| **Luís Alfredo Villacis Vera** | Bolseiro de Investigação / Mestrando | ESTG · IPLeiria |
+| **Luís Alfredo Villacis Vera** | Investigador / Mestrando | ESTG · IPLeiria |
 | **Prof. Ricardo Manuel da Silva Malheiro** | Orientador Científico | ESTG · IPLeiria |
 | **Prof. Olga Marina Freitas Craveiro** | Orientadora Científica | ESTG · IPLeiria |
-| **Prof. Vítor M. de Oliveira Pegado de Noronha e Távora** | Coordenador do Projeto | IPLeiria |
 
 ---
 
 ## Financiamento
 
-Este trabalho foi desenvolvido no âmbito da **Bolsa de Investigação BLOCKCHAIN.PT** — Agenda "Descentralizar Portugal com Blockchain" (WP2 – Saúde e Bem-estar).
+Este trabalho foi desenvolvido no âmbito da **Bolsa de Investigação BLOCKCHAIN.PT** — Agenda "Descentralizar Portugal com Blockchain" (WP2 – Saúde e Bem-estar), com financiamento PRR / Next Generation EU.
 
 **Ref.:** `02/C05-i01.01/2022.PC644918095-00000033`  
-**Financiamento:** PRR – Plano de Recuperação e Resiliência · Next Generation EU · 2021–2026  
 **Instituição de acolhimento:** Escola Superior de Tecnologia e Gestão (ESTG) · Instituto Politécnico de Leiria
+
+O trabalho produzido é independente da vertente blockchain — a contribuição científica centra-se em **interoperabilidade semântica clínica (HL7 FHIR R4)** e **sumarização automática de texto clínico em português**.
 
 ---
 

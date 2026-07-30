@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PACS2FHIR — Clinical Intelligence Platform</title>
-  <meta name="description" content="Transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4 — Luís Alfredo Villacis Vera, IPLeiria / ESTG-Leiria">
+  <title>SEMITRAX — SEMantic Interoperability and TRAnsformation for Healthcare data eXchange</title>
+  <meta name="description" content="SEMITRAX: transformação semântica e sumarização automática de relatórios radiológicos PACS para FHIR R4 — Luís Alfredo Villacis Vera, IPLeiria / ESTG-Leiria">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -343,7 +343,7 @@
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">PACS2FHIR<span> · Clinical Intelligence</span></div>
+  <div class="nav-logo">SEMITRAX<span> · Clinical Intelligence</span></div>
   <div class="nav-links">
     <a href="#historia">A História</a>
     <a href="#arquitetura">Arquitetura</a>
@@ -359,14 +359,14 @@
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-content">
-    <div class="hero-badge">BLOCKCHAIN.PT · WP9 · IPLeiria / ESTG-Leiria</div>
+    <div class="hero-badge">HL7 FHIR R4 · Clinical NLP · IPLeiria / ESTG-Leiria</div>
     <h1>
-      <span class="grad">PACS2FHIR</span><br>
-      Clinical Intelligence<br>Platform
+      <span class="grad">SEMITRAX</span><br>
+      Semantic Interoperability<br>&amp; Clinical Intelligence
     </h1>
     <p class="hero-sub">
-      Transformação semântica e sumarização automática de relatórios radiológicos —
-      do PACS hospitalar ao padrão FHIR R4, com avaliação multilíngue por modelos de linguagem.
+      <strong style="color:var(--teal);">SEM</strong>antic Interoperability and <strong style="color:var(--teal);">TRA</strong>nsformation for Healthcare data e<strong style="color:var(--teal);">X</strong>change —
+      transformação semântica e sumarização automática de relatórios radiológicos do PACS hospitalar ao padrão FHIR R4, com avaliação multilíngue por modelos de linguagem.
     </p>
     <div class="hero-actions">
       <a href="#arquitetura" class="btn btn-primary">Ver Arquitetura →</a>
@@ -402,11 +402,13 @@
     <div class="section-tag">Origem</div>
     <h2>Como nasceu o projeto</h2>
     <p class="section-intro">
-      Tudo começou com um conjunto de dados. A empresa <strong>BioGHP</strong> — custodiante dos dados
-      clínicos no âmbito do projeto <strong>BLOCKCHAIN.PT</strong> — disponibilizou 10.001 relatórios
-      radiológicos anonimizados provenientes do CHULN (Centro Hospitalar Universitário de Lisboa Norte).
-      Surgiu então a questão central: como transformar estes dados clínicos
-      não estruturados, exportados em JSON aninhado com narrativas em RTF, no padrão universal HL7 FHIR R4?
+      Tudo começou com um problema real de interoperabilidade. A empresa <strong>BioGHP</strong> disponibilizou
+      10.001 relatórios radiológicos anonimizados provenientes do <strong>CHULN</strong> (Centro Hospitalar
+      Universitário de Lisboa Norte) — dados não estruturados em JSON aninhado com narrativas em RTF.
+      A questão central: como transformar estes dados clínicos no padrão universal <strong>HL7 FHIR R4</strong>,
+      de forma automática, validada e escalável? E como gerar resumos clínicos automáticos de qualidade?
+      O trabalho foi desenvolvido no âmbito da bolsa BLOCKCHAIN.PT (WP2 – ESTG-Leiria), mas o foco científico
+      é a <strong>interoperabilidade semântica e o processamento de linguagem clínica em português</strong>.
     </p>
     <div class="timeline">
       <div class="tl-item">
@@ -436,8 +438,8 @@
       <div class="tl-item">
         <div class="tl-dot"></div>
         <div class="tl-date">NOV 2025</div>
-        <div class="tl-title">Apresentação na HCIST + arranque do módulo de sumarização</div>
-        <div class="tl-text">Apresentação da conferência em Lisboa. Início do desenvolvimento do módulo de sumarização clínica com LLMs — PTT5, mT5, modelos extrativos e avaliação EN/PT com radiologistas.</div>
+        <div class="tl-title">Apresentação na HCIST (Abu Dhabi, virtual) + arranque do módulo de sumarização</div>
+        <div class="tl-text">Apresentação virtual na conferência CENTERIS | ProjMAN | HCist 2025 (Abu Dhabi, UAE, 26 nov.). Início do desenvolvimento do módulo de sumarização clínica com LLMs — PTT5, mT5, modelos extrativos e avaliação EN/PT com radiologistas.</div>
       </div>
       <div class="tl-item">
         <div class="tl-dot"></div>
@@ -830,7 +832,7 @@
   <div class="container">
     <div class="section-tag">Equipa</div>
     <h2>Investigadores e Orientadores</h2>
-    <p class="section-intro">Projeto desenvolvido no Departamento de Engenharia Informática da ESTG-IPLeiria no âmbito da bolsa BLOCKCHAIN.PT WP2, com financiamento PRR / Next Generation EU.</p>
+    <p class="section-intro">Projeto de investigação em interoperabilidade semântica clínica e NLP, desenvolvido no Departamento de Engenharia Informática da ESTG-IPLeiria. Financiado pela bolsa BLOCKCHAIN.PT WP2 (PRR / Next Generation EU).</p>
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;" class="fade-up">
 
@@ -885,18 +887,6 @@
         </div>
       </div>
 
-      <!-- Vitor Tavora -->
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem;">
-        <div style="font-size:2.5rem; margin-bottom:.75rem;">🏛️</div>
-        <div style="font-size:.7rem; color:var(--purple); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:.25rem;">Coordenador do Projeto</div>
-        <div style="font-size:1.05rem; font-weight:800; margin-bottom:.5rem;">Prof. Vítor Manuel de Oliveira<br>Pegado de Noronha e Távora</div>
-        <div style="font-size:.82rem; color:var(--muted); line-height:1.6;">
-          Coordenador do projeto BLOCKCHAIN.PT — Agenda "Descentralizar Portugal com Blockchain" (WP2 – Saúde e Bem-estar), co-financiado pelo PRR / Next Generation EU.
-        </div>
-        <div style="margin-top:1rem;">
-          <span style="font-size:.68rem; background:rgba(155,89,247,0.1); color:var(--purple); padding:.2rem .6rem; border-radius:4px; font-weight:600;">BLOCKCHAIN.PT · WP2</span>
-        </div>
-      </div>
     </div>
 
     <!-- Funding bar -->
@@ -915,8 +905,8 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">PACS2FHIR</div>
-  <div class="footer-sub">Clinical Intelligence Platform · Luís Alfredo Villacis Vera<br>
+  <div class="footer-logo">SEMITRAX</div>
+  <div class="footer-sub">SEMantic Interoperability and TRAnsformation for Healthcare data eXchange · Luís Alfredo Villacis Vera<br>
     Mestrado em Engenharia Informática · ESTG · Instituto Politécnico de Leiria<br>
     BLOCKCHAIN.PT WP2 · PRR / Next Generation EU · Ref. 02/C05-i01.01/2022.PC644918095-00000033
   </div>
@@ -929,7 +919,7 @@
     <a href="https://www.ipleiria.pt" target="_blank">IPLeiria</a>
     <a href="mailto:luisalfre2202@gmail.com">Contacto</a>
   </div>
-  <div class="footer-copy">© 2026 Luís A. Villacis Vera · Prof. R. Malheiro · Prof. O. Craveiro · Prof. V. Távora — BLOCKCHAIN.PT</div>
+  <div class="footer-copy">© 2026 Luís A. Villacis Vera · Prof. R. Malheiro · Prof. O. Craveiro — BLOCKCHAIN.PT · ESTG-IPLeiria</div>
 </footer>
 
 <script>
